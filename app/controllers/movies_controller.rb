@@ -20,10 +20,10 @@ class MoviesController < ApplicationController
     elsif !params[:sort] and session[:sort]
       redirect_to movies_path(:sort => "#{session[:sort]}", :ratings => params[:ratings])
     end
-    
-    
-    
     @all_ratings = ['G','PG','PG-13','R']
+    if !session[:ratings] and !session[:sort]
+      @ratings = @all_ratings
+    end
     if params[:ratings]
       @ratings = params[:ratings]
       @include = params[:ratings].keys
