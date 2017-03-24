@@ -11,22 +11,39 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = ['G','PG','PG-13','R']
-    if @ratings == nil
-      @ratings = @all_ratings
+    if !params[:ratings] and session[:ratings]
+      if !params[:sort] and session[:sort]
+        redirect_to movies_path(:sort => "#{session[:sort]}", :ratings => session[:ratings])
+      else
+        redirect_to movies_path(:sort => "#{params[:sort]}", :ratings => session[:ratings])
+      end
+    elsif !params[:sort] and session[:sort]
+      redirect_to movies_path(:sort => "#{session[:sort]}", :ratings => params[:ratings])
     end
+    
+    
+    
+    @all_ratings = ['G','PG','PG-13','R']
     if params[:ratings]
       @ratings = params[:ratings]
+      @include = params[:ratings].keys
       @movies = Movie.where(:rating => @ratings.keys)
+      session[:ratings] = params[:ratings]
     else
       @movies = Movie.all
     end
+    if @ratings == nil
+      @ratings = []
+      @include = @all_ratings
+    end
     if params[:sort] == 'title'
-      @movies = Movie.order(:title)
+      @movies = Movie.order(:title).where(:rating => @include)
       @title= 'hilite'
+      session[:sort] = 'title'
     elsif params[:sort] == 'date'
-      @movies = Movie.order(:release_date)
+      @movies = Movie.order(:release_date).where(:rating => @include)
       @date = 'hilite'
+      session[:sort] = 'date'
     end
   end
 
